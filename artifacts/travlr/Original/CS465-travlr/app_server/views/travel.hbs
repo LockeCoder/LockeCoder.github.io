@@ -1,0 +1,22 @@
+<div id="main">
+  <div class="box">
+    <div>
+      <div>
+        <h3>Travel Packages</h3>
+        <ul>
+          {{#each trips}}
+            <li style="margin-bottom: 18px;">
+              <h4>{{name}}</h4>
+              <p>
+                <strong>Location:</strong> {{location}}<br />
+                <strong>Duration:</strong> {{duration}}<br />
+                <strong>Price:</strong> {{price}}
+              </p>
+              <p>{{description}}</p>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
