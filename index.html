@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LockeCoder's SNHU Computer Science Capstone ePortfolio.">
+  <title>LockeCoder | CS 499 Capstone</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #151f32;
+      --border: #29364b;
+      --text: #eef4ff;
+      --muted: #a7b6ca;
+      --accent: #76b7ff;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.7 system-ui, -apple-system, sans-serif;
+    }
+    a { color: var(--accent); }
+    a:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+    }
+    .container {
+      width: min(1100px, calc(100% - 40px));
+      margin: auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: #101a2b;
+    }
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 18px 0;
+      flex-wrap: wrap;
+    }
+    .brand {
+      font-weight: 750;
+      font-size: 1.2rem;
+      color: white;
+      text-decoration: none;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+    nav a { text-decoration: none; }
+    .hero {
+      padding: 80px 0 65px;
+      border-bottom: 1px solid var(--border);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: .85rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      line-height: 1.12;
+      margin: 15px 0 22px;
+      letter-spacing: -.035em;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      line-height: 1.3;
+      margin-top: 0;
+    }
+    h3 { margin-top: 0; }
+    p { color: var(--muted); }
+    .hero p { max-width: 750px; font-size: 1.1rem; }
+    section { padding: 60px 0 15px; scroll-margin-top: 20px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin: 20px 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .grid .card { margin: 0; }
+    .label {
+      color: var(--accent);
+      font-size: .82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .button {
+      display: inline-block;
+      padding: 10px 16px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 650;
+      margin-top: 12px;
+    }
+    .button:hover { background: #203b5b; }
+    .pending {
+      display: inline-block;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: .85rem;
+    }
+    footer {
+      margin-top: 65px;
+      padding: 25px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    @media (max-width: 800px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero { padding: 55px 0; }
+      .card { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="#home">LockeCoder</a>
+    <nav aria-label="Main navigation">
+      <a href="#assessment">About</a>
+      <a href="#review">Code Review</a>
+      <a href="#projects">Projects</a>
+      <a href="#outcomes">Outcomes</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero" id="home">
+    <div class="container">
+      <div class="eyebrow">
+        Southern New Hampshire University
+      </div>
+      <h1>Computer Science<br>Capstone ePortfolio</h1>
+      <p>
+        A portfolio of software engineering, algorithms,
+        data structures, and database development.
+        Created for CS 499 as a demonstration of
+        technical growth, analytical thinking, and
+        professional software development practices.
+      </p>
+      <a class="button" href="#projects">Explore Projects</a>
+    </div>
+  </div>
+
+  <section id="assessment" class="container">
+    <h2>Professional Self-Assessment</h2>
+    <div class="card">
+      <p>
+        This section will present my professional
+        self-assessment, introducing my experience,
+        technical strengths, career goals, and
+        development throughout the Computer Science
+        program at Southern New Hampshire University.
+      </p>
+      <span class="pending">Self-assessment to be added</span>
+    </div>
+  </section>
+
+  <section id="review" class="container">
+    <h2>Capstone Code Review</h2>
+    <div class="card">
+      <div class="label">CS 499 — Milestone One</div>
+      <h3>Existing Code Analysis and Planned Enhancements</h3>
+      <p>
+        This approximately 31-minute presentation
+        examines the existing functionality,
+        limitations, and planned improvements of
+        three software artifacts.
+      </p>
+      <p>
+        The review covers software design and
+        engineering, algorithms and data structures,
+        and databases.
+      </p>
+      <!-- Add the YouTube video URL or embed here. -->
+      <span class="pending">Video link to be added</span>
+    </div>
+  </section>
+
+  <section id="projects" class="container">
+    <h2>Capstone Projects</h2>
+    <p>
+      Three artifacts demonstrate development across
+      the core technical categories of the capstone.
+      Original source code is available below.
+      Enhanced versions and narratives will be added
+      after final verification.
+    </p>
+
+    <div class="grid">
+      <article class="card">
+        <div class="label">Category One</div>
+        <h3>Travlr Getaways</h3>
+        <p><strong>Software Design and Engineering</strong></p>
+        <p>
+          A travel application exploring web
+          architecture, API development, authentication,
+          and software maintainability.
+        </p>
+        <a class="button"
+          href="https://github.com/LockeCoder/travlr-travel-app">
+          Original Repository
+        </a>
+        <p>Enhanced artifact and narrative:</p>
+        <span class="pending">To be added</span>
+      </article>
+
+      <article class="card">
+        <div class="label">Category Two</div>
+        <h3>ABCU Advising</h3>
+        <p><strong>Algorithms and Data Structures</strong></p>
+        <p>
+          A C++ course catalog application examining
+          hash-based lookup, sorting, prerequisites,
+          and dependency analysis.
+        </p>
+        <a class="button"
+          href="https://github.com/LockeCoder/Reflecting-on-Data-Structures-and-Algorithms">
+          Original Repository
+        </a>
+        <p>Enhanced artifact and narrative:</p>
+        <span class="pending">To be added</span>
+      </article>
+
+      <article class="card">
+        <div class="label">Category Three</div>
+        <h3>Grazioso Salvare</h3>
+        <p><strong>Databases</strong></p>
+        <p>
+          A Python and MongoDB animal shelter
+          application with database CRUD operations,
+          interactive filtering, and a dashboard.
+        </p>
+        <a class="button"
+          href="https://github.com/LockeCoder/CS340-Project-Two">
+          Original Repository
+        </a>
+        <p>Enhanced artifact and narrative:</p>
+        <span class="pending">To be added</span>
+      </article>
+    </div>
+  </section>
+
+  <section id="outcomes" class="container">
+    <h2>Course Outcomes</h2>
+    <div class="card">
+      <p>
+        The final portfolio will document evidence
+        of five program outcomes:
+      </p>
+      <ol>
+        <li>Collaboration and organizational decision-making</li>
+        <li>Professional written, oral, and visual communication</li>
+        <li>Algorithmic design and evaluation</li>
+        <li>Computing tools, techniques, and implementation</li>
+        <li>Secure design, validation, and risk mitigation</li>
+      </ol>
+      <p>
+        The completed enhancement narratives and
+        self-assessment will explain how the
+        artifacts support these outcomes.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>
+      LockeCoder · CS 499 Computer Science Capstone<br>
+      Southern New Hampshire University
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
