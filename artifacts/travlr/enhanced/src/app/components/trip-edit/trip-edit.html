@@ -1,0 +1,54 @@
+<div class="container mt-4">
+  <h1>Edit Trip</h1>
+
+  <p *ngIf="message">{{ message }}</p>
+
+  <form *ngIf="trip" (ngSubmit)="saveTrip()">
+    <div class="mb-3">
+      <label for="name"><strong>Name</strong></label><br />
+      <input id="name" type="text" name="name" [(ngModel)]="trip.name" />
+    </div>
+
+    <div class="mb-3">
+      <label for="code"><strong>Code</strong></label><br />
+      <input id="code" type="text" name="code" [(ngModel)]="trip.code" />
+    </div>
+
+    <div class="mb-3">
+      <label for="length"><strong>Length</strong></label><br />
+      <input id="length" type="text" name="length" [(ngModel)]="trip.length" />
+    </div>
+
+    <div class="mb-3">
+      <label for="start"><strong>Start</strong></label><br />
+      <input id="start" type="text" name="start" [(ngModel)]="trip.start" />
+    </div>
+
+    <div class="mb-3">
+      <label for="resort"><strong>Resort</strong></label><br />
+      <input id="resort" type="text" name="resort" [(ngModel)]="trip.resort" />
+    </div>
+
+    <div class="mb-3">
+      <label for="perPerson"><strong>Per Person</strong></label><br />
+      <input id="perPerson" type="text" name="perPerson" [(ngModel)]="trip.perPerson" />
+    </div>
+
+    <div class="mb-3">
+      <label for="image"><strong>Image</strong></label><br />
+      <input id="image" type="text" name="image" [(ngModel)]="trip.image" />
+    </div>
+
+    <div class="mb-3">
+      <label for="description"><strong>Description</strong></label><br />
+      <textarea
+        id="description"
+        name="description"
+        rows="5"
+        [(ngModel)]="trip.description"></textarea>
+    </div>
+
+    <button type="submit">Save Changes</button>
+    <button type="button" (click)="deleteTrip()">Delete Trip</button>
+  </form>
+</div>

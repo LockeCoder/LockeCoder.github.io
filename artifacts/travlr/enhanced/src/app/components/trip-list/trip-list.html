@@ -1,0 +1,14 @@
+<div class="container mt-4">
+  <h1>Travlr Admin</h1>
+
+  <p><a [routerLink]="['/add']">Add Trip</a></p>
+
+  <p *ngIf="message">{{ message }}</p>
+
+  <div *ngIf="trips.length">
+    <app-trip-card
+      *ngFor="let trip of trips"
+      [trip]="trip">
+    </app-trip-card>
+  </div>
+</div>
