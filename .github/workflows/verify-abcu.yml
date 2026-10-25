@@ -1,0 +1,144 @@
+name: Verify ABCU C++ applications
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and functional tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compile original and enhanced C++17 applications
+        shell: bash
+        run: |
+          set -euo pipefail
+          g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
+            artifacts/abcu/Original/ProjectTwo.cpp \
+            -o "$RUNNER_TEMP/abcu-original"
+          g++ -std=c++17 -O2 -Wall -Wextra -pedantic \
+            artifacts/abcu/enhanced/ProjectTwo.cpp \
+            -o "$RUNNER_TEMP/abcu-enhanced"
+          echo 'Both ABCU programs compiled successfully.'
+
+      - name: Exercise course lookup, sorting, prerequisites, and error handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import csv
+          import os
+          import re
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          ROOT = Path('artifacts/abcu')
+          CSV_NAME = 'CS 300 ABCU_Advising_Program_Input.csv'
+          EXPECTED = {}
+          with (ROOT / 'enhanced' / CSV_NAME).open(newline='') as fh:
+              for row in csv.reader(fh):
+                  if len(row) >= 2 and row[0] and row[1]:
+                      EXPECTED[row[0]] = [p for p in row[2:] if p]
+
+          def check(ok, message, output=''):
+              if not ok:
+                  raise AssertionError(message + '\n' + output[-3000:])
+
+          def run(kind, choices=(), csv_file=CSV_NAME):
+              binary = Path(os.environ['RUNNER_TEMP']) / ('abcu-' + kind)
+              program_input = str(csv_file) + '\n' + '\n'.join(choices) + '\n'
+              result = subprocess.run(
+                  [str(binary)],
+                  input=program_input,
+                  capture_output=True,
+                  text=True,
+                  cwd=ROOT / ('Original' if kind == 'original' else 'enhanced'),
+                  timeout=12,
+              )
+              return result.returncode, result.stdout + result.stderr
+
+          check(len(EXPECTED) >= 5, 'Expected several courses in input CSV')
+
+          for kind in ('original', 'enhanced'):
+              code, output = run(kind, ['4', '3', 'CSCI400', '9'])
+              check(code == 0, f'{kind}: normal session failed', output)
+              check('Courses loaded successfully!' in output,
+                    f'{kind}: CSV load failed', output)
+              check('Course Number: CSCI400, Title:' in output,
+                    f'{kind}: course lookup failed', output)
+              check('Exiting program. Goodbye!' in output,
+                    f'{kind}: exit command failed', output)
+              check('Sorted List of Courses:' in output,
+                    f'{kind}: missing sorted list', output)
+              section = output.split('Sorted List of Courses:', 1)[1].split('\nMenu:', 1)[0]
+              codes = re.findall(r'Course Number: ([A-Z0-9]+), Title:', section)
+              check(codes == sorted(EXPECTED),
+                    f'{kind}: sorted listing is incorrect or incomplete', output)
+              print(f'PASS: {kind} load, lookup, sorting, and exit')
+
+              code, output = run(kind, ['x', '42', '9'])
+              check(code == 0 and 'Invalid input.' in output and
+                    'Invalid choice.' in output,
+                    f'{kind}: invalid menu input handling failed', output)
+              print(f'PASS: {kind} invalid menu input')
+
+              code, output = run(kind, csv_file='no-such-abcu-file.csv')
+              check(code != 0 and 'File does not exist' in output,
+                    f'{kind}: missing CSV handling failed', output)
+              print(f'PASS: {kind} missing input file')
+
+          code, output = run('enhanced', ['6', 'CSCI400', '7', '8', '9'])
+          check(code == 0, 'Enhanced feature session failed', output)
+          check('Prerequisite chain for CSCI400' in output and
+                '-> CSCI301' in output and '-> CSCI350' in output,
+                'Prerequisite chain missing expected courses', output)
+          check('Course prerequisite structure is valid.' in output,
+                'Valid prerequisite graph rejected', output)
+          check('Prerequisite-Valid Course Order:' in output,
+                'Topological course order not displayed', output)
+          section = output.split('Prerequisite-Valid Course Order:', 1)[1].split('\nMenu:', 1)[0]
+          ordering = re.findall(r'^([A-Z0-9]+) - ', section, re.MULTILINE)
+          check(len(ordering) == len(EXPECTED) and set(ordering) == set(EXPECTED),
+                'Topological order omitted or duplicated courses', output)
+          positions = {course: i for i, course in enumerate(ordering)}
+          for course, prereqs in EXPECTED.items():
+              for prereq in prereqs:
+                  check(positions[prereq] < positions[course],
+                        f'Prerequisite {prereq} appeared after {course}', output)
+          print('PASS: enhanced prerequisite chains, validation, topological sort')
+
+          with tempfile.TemporaryDirectory() as tmp:
+              missing = Path(tmp) / 'missing-prerequisite.csv'
+              missing.write_text('CSCI100,Introduction\nCSCI200,Data,CSCI999\n')
+              code, output = run('enhanced', ['6', 'CSCI200', '9'], missing)
+              check(code == 0 and 'references missing prerequisite CSCI999' in output
+                    and 'CSCI999 [course not found]' in output,
+                    'Missing prerequisite was not reported', output)
+              print('PASS: enhanced missing prerequisite detection')
+
+              cycle = Path(tmp) / 'cycle.csv'
+              cycle.write_text('CSCI100,Introduction,CSCI200\nCSCI200,Data,CSCI100\n')
+              code, output = run('enhanced', ['6', 'CSCI100', '7', '9'], cycle)
+              check(code == 0 and 'Cycle detected in prerequisite relationships.' in output
+                    and '[cycle detected]' in output
+                    and 'Unable to generate a valid course order.' in output,
+                    'Cyclic prerequisites not handled correctly', output)
+              print('PASS: enhanced cycle detection and invalid ordering rejection')
+
+              empty = Path(tmp) / 'empty.csv'
+              empty.write_text('')
+              code, output = run('enhanced', csv_file=empty)
+              check(code != 0 and 'No courses were loaded.' in output,
+                    'Empty CSV handling failed', output)
+              print('PASS: enhanced empty input file')
+
+          print('All ABCU compilation and functional checks passed.')
+          PY
