@@ -1,0 +1,73 @@
+
+name: Fix Grazioso folder organization
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Verify and relocate Grazioso files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          old="artifacts/artifacts/grazioso"
+          new="artifacts/grazioso"
+
+          # Verify the existing folder.
+          test -d "$old"
+          test ! -e "$new"
+
+          # Verify the original source files.
+          test -f "$old/README.md"
+          test -f "$old/Original/README.md"
+          test -f "$old/Original/CRUD_Python_Module.py"
+          test -f "$old/Original/ProjectTwoDashboard.ipynb"
+          test -f "$old/Original/Grazioso Salvare Logo.png"
+
+          # Move the entire project into the correct directory.
+          git mv -- "$old" "$new"
+
+          # Verify the destination after moving.
+          test -f "$new/README.md"
+          test -f "$new/Original/README.md"
+          test -f "$new/Original/CRUD_Python_Module.py"
+          test -f "$new/Original/ProjectTwoDashboard.ipynb"
+          test -f "$new/Original/Grazioso Salvare Logo.png"
+
+          # Ensure every change is staged.
+          git add -A -- artifacts/
+
+          # Check changes for whitespace errors.
+          git diff --cached --check
+
+          # Display the changes before committing.
+          git diff --cached --stat
+
+      - name: Commit corrected folder structure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git commit -m "Correct Grazioso project directory"
+          git push origin HEAD:main
