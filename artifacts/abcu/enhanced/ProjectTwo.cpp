@@ -26,22 +26,38 @@ bool fileExists(const string& filePath) {
     return (stat(filePath.c_str(), &buffer) == 0);
 }
 
+// Trim surrounding whitespace, including CRLF line endings, from CSV fields.
+string trimCsvField(const string& value) {
+    const size_t first = value.find_first_not_of(" \t\r\n");
+    if (first == string::npos) {
+        return "";
+    }
+
+    const size_t last = value.find_last_not_of(" \t\r\n");
+    return value.substr(first, last - first + 1);
+}
+
 // Function to parse a CSV line into a Course object
 Course parseCourseLine(const string& line) {
     Course course;
     stringstream ss(line);
-    string temp;
+    string field;
 
-    // Parse the course number
-    getline(ss, course.courseNumber, ',');
+    // Read and normalize the course number.
+    if (getline(ss, field, ',')) {
+        course.courseNumber = trimCsvField(field);
+    }
 
-    // Parse the course title
-    getline(ss, course.title, ',');
+    // Read and normalize the course title.
+    if (getline(ss, field, ',')) {
+        course.title = trimCsvField(field);
+    }
 
-    // Parse prerequisites (if any)
-    while (getline(ss, temp, ',')) {
-        if (!temp.empty()) {
-            course.prerequisites.push_back(temp);
+    // Trim prerequisite codes and ignore empty CSV fields.
+    while (getline(ss, field, ',')) {
+        string prerequisite = trimCsvField(field);
+        if (!prerequisite.empty()) {
+            course.prerequisites.push_back(prerequisite);
         }
     }
 
