@@ -1,68 +1,69 @@
-# CS-300 Data Structures and Algorithms Portfolio
+# CS 300 — ABCU Advising Assistance | Enhanced Capstone Artifact
 
-This repository contains my CS-300 portfolio project for the ABCU advising assistance program. The project demonstrates data structure analysis, algorithm selection, C++ implementation, CSV file parsing, input validation, and maintainable software design.
+This project is my enhanced CS 300 advising assistance application, included in my CS 499 Computer Science Capstone portfolio at Southern New Hampshire University. It demonstrates data structure analysis, algorithm selection, C++ development, CSV parsing, prerequisite validation, and maintainable software design.
 
 ## Project Overview
 
-The main problem I addressed was creating an advising assistance program for ABCU academic advisors.
+The problem I addressed was creating an advising assistance program for ABCU academic advisors. The application loads a course catalog, displays courses in alphanumeric order, and retrieves course information, including prerequisites.
 
-The program needed to load course data from a CSV file, display available courses in alphanumeric order, and allow users to retrieve information for a specific course, including prerequisites. This required building a data management system that could organize course records, support quick lookups, validate input, and present course information clearly to the user.
+For my CS 499 enhancement, I extended the original application to analyze prerequisite relationships more thoroughly. The enhanced version can display complete prerequisite chains, identify missing references and circular dependencies, and generate a prerequisite-valid course sequence.
 
 ## Repository Contents
 
-- `ProjectTwo.cpp` - Final C++ advising assistance program
-- `CS 300 ABCU_Advising_Program_Input.csv` - Course input data
-- `Project One.docx` - Data structure analysis and pseudocode
-- `2-3 Assignment Vector Sorting.docx` - Vector sorting assignment
-- `4-2 Assignment Hash Tables.docx` - Hash table assignment
-- `5-2 Assignment Binary Search Tree.docx` - Binary search tree assignment
-- `Case 1 and 2.png` - Program testing screenshot
-- `Case 2 and 3.png` - Program testing screenshot
-- `Case 3 and 4.png` - Program testing screenshot
-- `Case 4 and 5.png` - Program testing screenshot
-- `Input and Output Test with Case 9.png` - Exit and input/output test screenshot
-- `README.md` - Repository documentation
+This `enhanced/` directory contains:
 
-## Data Structure Approach
+- `ProjectTwo.cpp` — Enhanced C++ advising assistance application.
+- `CS 300 ABCU_Advising_Program_Input.csv` — Sample course catalog and prerequisite data.
+- `README.md` — Documentation for the enhanced application.
 
-For the final advising program, I used a hash table because it supports efficient course lookup by course number.
+Other capstone materials are maintained separately:
 
-This was appropriate for the project because academic advisors need to search for course information quickly and retrieve prerequisite details without scanning the entire dataset manually.
+- [Original CS 300 application](../Original/) — Source code before the capstone enhancement.
+- [CS 499 enhancement narrative](../4-2%20Milestone%20Three.docx) — Explanation of the changes and relevant course outcomes.
+- [ABCU artifact overview](../README.md) — Parent portfolio directory.
 
-The project also included analysis of other data structures, including vectors and binary search trees. Comparing these structures helped show how data organization affects runtime efficiency, lookup speed, sorting behavior, and maintainability.
+Earlier CS 300 assignment documents and screenshots are not part of this enhanced-source directory.
+
+## Data Structures and Algorithms
+
+The application uses an `unordered_map` keyed by course number to support efficient average-case lookup of course records. Each course stores its prerequisites in a `vector<string>`. For alphabetically ordered listings, the program copies course numbers to a vector and sorts them.
+
+The capstone enhancements add graph-based analysis of course dependencies:
+
+- **Prerequisite validation:** Checks whether referenced prerequisite course numbers exist in the loaded catalog.
+- **Cycle detection:** Uses depth-first search with visitation states to identify circular prerequisite relationships.
+- **Complete prerequisite chains:** Recursively displays dependencies, including indirect prerequisites, and detects cycles while traversing.
+- **Prerequisite-valid course order:** Uses Kahn's topological sorting algorithm and a min-priority queue to produce a deterministic order in which available prerequisites precede the courses that require them.
+
+These additions extend the original hash-table approach into a practical dependency-analysis tool for academic advising.
 
 ## Program Features
 
-- Loads course data from a CSV file
-- Parses course number, course title, and prerequisites
-- Stores course records in a hash table
-- Displays all loaded courses
-- Prints courses in alphanumeric order
-- Looks up a specific course by course number
-- Displays prerequisite information for a selected course
-- Validates menu input
-- Handles missing files and malformed course data
-- Provides a menu-driven console interface
+- Loads course records from a CSV file.
+- Parses course numbers, titles, and prerequisite fields.
+- Trims surrounding whitespace and handles Windows-style line endings in CSV fields.
+- Ignores blank prerequisite fields.
+- Stores course information in an `unordered_map`.
+- Displays all loaded courses or sorts course listings alphanumerically.
+- Looks up individual courses and displays their prerequisites.
+- Displays full prerequisite chains.
+- Reports missing prerequisite references and circular dependencies.
+- Generates a prerequisite-valid ordering when the dependency graph is acyclic.
+- Validates menu selections and handles missing or empty input files.
 
 ## Build and Run
 
 ### Requirements
 
-- C++17 or newer
-- Visual Studio, g++, or another C++ compiler
-
-### Input File
-
-The program uses this CSV input file:
-
-```text
-CS 300 ABCU_Advising_Program_Input.csv
-```
+- A compiler supporting C++17 or newer, such as `g++` or Microsoft Visual C++.
+- The sample CSV file included in this directory.
 
 ### Compile with g++
 
+From the `enhanced/` directory:
+
 ```bash
-g++ ProjectTwo.cpp -o ProjectTwo
+g++ -std=c++17 -Wall -Wextra -pedantic ProjectTwo.cpp -o ProjectTwo
 ```
 
 ### Run on macOS/Linux
@@ -73,86 +74,88 @@ g++ ProjectTwo.cpp -o ProjectTwo
 
 ### Run on Windows
 
-```bash
-ProjectTwo.exe
+If compiled to `ProjectTwo.exe` using a suitable Windows C++ toolchain:
+
+```powershell
+.\ProjectTwo.exe
 ```
+
+When prompted for the CSV file path, enter:
+
+```text
+CS 300 ABCU_Advising_Program_Input.csv
+```
+
+The program expects a valid path to the course data file; running it from the `enhanced/` directory makes the example above work without an absolute path.
 
 ## Menu Options
 
-The program menu allows the user to:
+1. Load course data.
+2. Display all courses.
+3. Display course information.
+4. Display a sorted list of courses.
+5. Print a course and its prerequisites.
+6. Display a complete prerequisite chain.
+7. Display a prerequisite-valid course order.
+8. Validate prerequisite relationships.
+9. Exit.
 
-1. Load course data
-2. Display all courses
-3. Display course information
-4. Display a sorted list of courses
-5. Print a course and prerequisites
-9. Exit
+## Build and Functional Verification
+
+The [GitHub Actions verification workflow](../../../.github/workflows/verify-abcu.yml) compiles both the original and enhanced C++ applications using C++17 and exercises their functional behavior.
+
+**Verification status:** The October 25, 2026 GitHub Actions run #2 completed successfully. The configured checks covered course loading, lookup, sorting, invalid menu input, missing files, and the enhanced application's prerequisite chains, validation, topological sorting, cycle handling, and empty-file behavior.
+
+This is automated build and functional-test evidence, not a claim that every possible input or platform has been tested.
 
 ## Skills Demonstrated
 
-- C++ programming
-- Data structure analysis
-- Hash table implementation
-- CSV file parsing
-- Input validation
-- Error handling
-- Alphanumeric sorting
-- Menu-driven console application design
-- Requirements-based implementation
-- Algorithmic thinking
-- Technical reflection and documentation
+- C++17 programming and console application development.
+- Hash-table design and average-case efficient lookup.
+- Vectors, sorting, and algorithm selection.
+- Directed graphs, depth-first search, and cycle detection.
+- Topological sorting with Kahn's algorithm.
+- CSV parsing, input normalization, and validation.
+- Error handling and functional testing.
+- Code maintenance, technical documentation, and GitHub Actions verification.
 
 ## Portfolio Reflection
 
 ### What Was the Problem You Were Solving in the Projects for This Course?
 
-The main problem I addressed was creating an advising assistance program for ABCU academic advisors.
-
-The program needed to load course data efficiently, display all available courses in alphanumeric order, and allow users to retrieve information on specific courses, including prerequisites. This required building a robust data management system to handle course data and support quick lookups.
+The main problem I addressed was creating an advising assistance program for ABCU academic advisors. The program needed to load course data efficiently, display available courses in alphanumeric order, and allow users to retrieve information about specific courses, including prerequisites. For the capstone enhancement, I extended the program so advisors could also examine dependency chains and determine whether prerequisite relationships were valid.
 
 ### How Did You Approach the Problem? Why Are Data Structures Important to Understand?
 
-I approached the problem by focusing on data organization and retrieval efficiency.
+I approached the problem by focusing on how course data would be organized, searched, and displayed. Based on my analysis from Project One, I chose a hash table because it supports efficient average-case lookup by course number. I also used vectors for prerequisite lists and sorting.
 
-Based on my analysis from Project One, I decided to use a hash table for this task because it supports fast data access, which is ideal for applications requiring frequent searches.
-
-Understanding data structures is essential in software development because they directly impact a program's efficiency, speed, and scalability. By selecting a hash table, I could ensure that course lookups and data manipulation operations were optimized for the user's needs.
+The enhancement required treating prerequisites as a directed graph. Understanding data structures and graph algorithms made it possible to detect circular dependencies and produce a course ordering that respects prerequisites. These decisions affect the application's accuracy, efficiency, and usefulness to an academic advisor.
 
 ### How Did You Overcome Any Roadblocks You Encountered?
 
-I encountered roadblocks such as managing user input validation and file errors. To overcome these, I implemented error handling for file operations and designed a user input validation function to support smooth interaction with the menu.
-
-Testing was also important for identifying and fixing unexpected behavior, such as handling empty files or malformed data entries. This improved the reliability of the program.
+Input validation and file handling were initial challenges. I added checks for missing files, invalid menu selections, and malformed course records. During capstone verification, automated testing also revealed that blank CSV prerequisite fields and Windows-style line endings caused valid course references to be reported as missing. I corrected the parser to trim whitespace and ignore empty prerequisite entries, then reran the verification workflow successfully.
 
 ### How Has Your Work on This Project Expanded Your Approach to Designing Software and Developing Programs?
 
-This project reinforced the importance of planning and analyzing the problem before coding. By developing pseudocode and comparing different data structures, I was able to understand the tradeoffs before choosing the final implementation.
-
-This approach helped me focus on building a scalable and efficient program while keeping the user experience in mind.
+This project reinforced the importance of planning and analyzing a problem before coding. Comparing data structures helped me choose an appropriate way to store and retrieve courses. Extending the project with prerequisite validation, depth-first search, and topological sorting showed how an existing program can grow to support more demanding requirements without discarding its original design.
 
 ### How Has Your Work on This Project Evolved Regarding How You Write Maintainable, Readable, and Adaptable Programs?
 
-Working on this project highlighted the need for clear code structure and documentation. To improve readability, I used inline comments, meaningful variable names, and modular functions.
-
-I also focused on keeping the code adaptable for future requirements, such as adding new features, improving validation, or expanding reporting options. The experience improved my approach to writing maintainable code so others and my future self can understand and expand it.
+Working on this project emphasized clear function boundaries, descriptive names, meaningful comments, and repeatable testing. The enhanced application separates course loading, lookup, dependency validation, chain traversal, and sorting into distinct operations. I also used automated compilation and functional checks to verify changes. This makes it easier to identify defects and extend the application without unintentionally breaking existing functionality.
 
 ## Project Value
 
-This project shows my ability to analyze a problem, compare data structure options, select an appropriate implementation strategy, and build a functional C++ console application.
-
-It is strongest for demonstrating foundational software engineering skills, algorithmic thinking, data handling, input validation, and maintainable program design.
+This artifact demonstrates my ability to evaluate data structures, implement C++ algorithms, process external data, analyze dependencies, and improve an existing application. The contrast between the original and enhanced versions shows the progression from basic course lookup to more sophisticated prerequisite validation and course sequencing.
 
 ## Future Improvements
 
-- Add a `.gitignore` file for C++ and Visual Studio artifacts
-- Add clearer Visual Studio build/run instructions
-- Organize documents and screenshots into `docs/` and `media/` folders
-- Add more defensive validation for malformed CSV rows
-- Add more detailed error messages for invalid course data
-- Add unit tests for CSV parsing and course lookup logic
+- Add a dedicated unit-testing framework for individual parsing and graph functions.
+- Support quoted CSV fields and more detailed malformed-record diagnostics.
+- Improve interactive handling of unexpected end-of-file input.
+- Add more comprehensive test datasets and cross-platform build coverage.
+- Expand documentation for Microsoft Visual Studio users.
+- Separate parsing, domain logic, and the menu interface into reusable source files.
 
 ## Academic Portfolio Notice
 
-This repository is shared as an academic portfolio artifact. It may include coursework documentation and assignment-specific material created for an educational setting.
-
-Please do not reuse, submit, or redistribute this work as your own.
+This source code is shared as an academic portfolio artifact to demonstrate my work and learning. Please do not reuse, submit, or redistribute it as your own coursework.
