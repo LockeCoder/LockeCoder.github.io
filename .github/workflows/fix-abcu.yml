@@ -41,15 +41,21 @@ jobs:
           git mv "$old/README.md" "$new/README.md"
 
           # Remove the unnecessary placeholder.
+          # Force removal because the moved file is already staged.
           if test -f "$new/enhanced/.gitkeep"; then
-            git rm "$new/enhanced/.gitkeep"
+            git rm -f -- "$new/enhanced/.gitkeep"
           fi
 
           # Verify the completed structure.
           test -f "$new/Original/ProjectTwo.cpp"
           test -f "$new/enhanced/ProjectTwo.cpp"
+          test -f "$new/Original/CS 300 ABCU_Advising_Program_Input.csv"
+          test -f "$new/enhanced/CS 300 ABCU_Advising_Program_Input.csv"
           test -f "$new/4-2 Milestone Three.docx"
           test -f "$new/README.md"
+
+          # Ensure the incorrectly named source folder is empty.
+          test ! -d "$old"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
