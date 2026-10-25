@@ -1,0 +1,32 @@
+[
+  {
+    "code": "GALE",
+    "name": "Gale Reef",
+    "length": "4 nights / 5 days",
+    "start": "2026-05-15",
+    "resort": "Emerald Bay Resort",
+    "perPerson": "$799",
+    "image": "reef1.jpg",
+    "description": "Gale Reef trip: Sed et augue lorem. In sit amet placerat arcu. Mauris volutpat ipsum ac justo mollis vel vestibulum orci gravida."
+  },
+  {
+    "code": "DAWS",
+    "name": "Dawson’s Reef",
+    "length": "5 nights / 6 days",
+    "start": "2026-06-10",
+    "resort": "Dawson Reef Resort",
+    "perPerson": "$899",
+    "image": "reef2.jpg",
+    "description": "Dawson’s Reef trip: Integer magna leo, posuere et dignissim vitae, porttitor at odio. Pellentesque a metus nec magna placerat volutpat."
+  },
+  {
+    "code": "CLAI",
+    "name": "Claire’s Reef",
+    "length": "3 nights / 4 days",
+    "start": "2026-07-20",
+    "resort": "Claire Cove Resort",
+    "perPerson": "$699",
+    "image": "reef3.jpg",
+    "description": "Claire’s Reef trip: Donec sed felis risus. Nulla facilisi. Donec a orci tellus, et auctor odio. Fusce ac orci nibh, quis semper arcu."
+  }
+]
