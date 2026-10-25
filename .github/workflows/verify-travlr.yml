@@ -1,0 +1,127 @@
+name: Verify Travlr applications
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  angular:
+    name: Angular build and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: artifacts/travlr/enhanced/travlr-admin
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Configure Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: artifacts/travlr/enhanced/travlr-admin/package-lock.json
+      - name: Install locked Angular dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build Angular application
+        run: npm run build
+      - name: Run Angular unit tests
+        run: npm test -- --watch=false
+
+  express:
+    name: Express tests and MongoDB integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: artifacts/travlr/enhanced/travlr-express
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Configure Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Express dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run Express unit tests
+        run: npm test
+      - name: Exercise live API with temporary MongoDB
+        shell: bash
+        env:
+          MONGO_URI: mongodb://127.0.0.1:27017/travlr_ci
+          ADMIN_NAME: CI Administrator
+          ADMIN_EMAIL: ci-admin@example.invalid
+        run: |
+          set -euo pipefail
+          export JWT_SECRET="$(node -e "process.stdout.write(require('node:crypto').randomBytes(48).toString('hex'))")"
+          export ADMIN_PASSWORD="$(node -e "process.stdout.write(require('node:crypto').randomBytes(24).toString('hex'))")"
+
+          # Create an administrator only in the disposable CI database.
+          npm run setup:admin
+          npm start > "$RUNNER_TEMP/travlr-express.log" 2>&1 &
+          api_pid=$!
+          trap 'status=$?; if [ "$status" -ne 0 ]; then echo "Express server log:"; tail -n 80 "$RUNNER_TEMP/travlr-express.log"; fi; kill "$api_pid" 2>/dev/null || true' EXIT
+
+          # Fail cleanly if the application never starts.
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:3000/api/trips > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo 'Express API did not become ready.'
+            exit 1
+          fi
+
+          # Test real HTTP requests and database persistence, not mocked responses.
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const root = 'http://127.0.0.1:3000/api';
+
+          async function request(method, path, payload, token) {
+            const headers = {};
+            if (token) headers.Authorization = `Bearer ${token}`;
+            if (payload !== undefined) headers['Content-Type'] = 'application/json';
+            const response = await fetch(root + path, {
+              method,
+              headers,
+              body: payload === undefined ? undefined : JSON.stringify(payload)
+            });
+            const text = await response.text();
+            let body;
+            try { body = text ? JSON.parse(text) : null; }
+            catch { body = text; }
+            return { status: response.status, body, headers: response.headers };
+          }
+
+          (async () => {
+            const empty = await request('GET', '/trips');
+            assert.equal(empty.status, 200, 'Public trip listing should return 200');
+            assert.ok(Array.isArray(empty.body), 'Trip listing should return an array');
+
+            const trip = {
+              code: `CI${Date.now()}`,
+              name: 'Automated Integration Test',
+              length: '3 days',
+              start: '2026-11-01',
+              resort: 'Test Resort',
+              perPerson: '500',
+              image: 'ci-test.jpg',
+              description: 'Temporary test record'
+            };
