@@ -1,0 +1,58 @@
+
+name: Fix ABCU folder organization
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Consolidate ABCU folders
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          old="artifacts/abcu "
+          new="artifacts/abcu"
+
+          # Verify files before moving anything.
+          test -f "$old/Original/ProjectTwo.cpp"
+          test -f "$old/ enhanced/ProjectTwo.cpp"
+          test -f "$old/README.md"
+          test -f "$new/4-2 Milestone Three.docx"
+
+          test ! -e "$new/Original"
+          test ! -e "$new/enhanced"
+          test ! -e "$new/README.md"
+
+          # Preserve the narrative and move existing source files.
+          git mv "$old/Original" "$new/Original"
+          git mv "$old/ enhanced" "$new/enhanced"
+          git mv "$old/README.md" "$new/README.md"
+
+          # Remove the unnecessary placeholder.
+          if test -f "$new/enhanced/.gitkeep"; then
+            git rm "$new/enhanced/.gitkeep"
+          fi
+
+          # Verify the completed structure.
+          test -f "$new/Original/ProjectTwo.cpp"
+          test -f "$new/enhanced/ProjectTwo.cpp"
+          test -f "$new/4-2 Milestone Three.docx"
+          test -f "$new/README.md"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git commit -m "Consolidate ABCU artifact folders"
+          git push origin HEAD:main
