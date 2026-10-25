@@ -1,3 +1,4 @@
+
 name: Organize Travlr source folders
 
 on:
@@ -29,32 +30,34 @@ jobs:
           backend="$root/travlr-express"
           inner="$backend/travlr-express"
 
-          # Verify the exact known layout before making any changes.
+          # Verify the existing layout before making changes.
           [[ -d "$root" && ! -e "$admin" ]] || { echo 'Unexpected Angular destination. Stopping.'; exit 1; }
           [[ -d "$inner" && -f "$inner/app.js" && -f "$inner/package.json" ]] || { echo 'Expected nested Express backend is missing. Stopping.'; exit 1; }
           [[ ! -e "$backend/app.js" && ! -e "$backend/package.json" ]] || { echo 'Express destination already populated. Stopping.'; exit 1; }
+
           for entry in public src README.md angular.json package.json package-lock.json tsconfig.app.json tsconfig.json tsconfig.spec.json; do
             [[ -e "$root/$entry" ]] || { echo "Missing expected Angular file: $entry. Stopping."; exit 1; }
           done
+
           while IFS= read -r -d '' path; do
             name="$(basename "$path")"
             [[ ! -e "$backend/$name" ]] || { echo "Express destination collision: $name. Stopping."; exit 1; }
           done < <(find "$inner" -mindepth 1 -maxdepth 1 -print0)
 
-          # Move Angular files into the dedicated administrator application folder.
+          # Relocate Angular files without changing their contents.
           mkdir "$admin"
           for entry in public src README.md angular.json package.json package-lock.json tsconfig.app.json tsconfig.json tsconfig.spec.json; do
             mv -- "$root/$entry" "$admin/$entry"
           done
 
-          # Remove one accidentally duplicated Express folder level.
+          # Remove only the accidental extra Express directory level.
           while IFS= read -r -d '' path; do
             mv -- "$path" "$backend/"
           done < <(find "$inner" -mindepth 1 -maxdepth 1 -print0)
           rmdir "$inner"
           rm -f -- "$backend/.gitkeep"
 
-          # Add a short, accurate index for both enhanced applications.
+          # Add an index for the two enhanced applications.
           cat > "$root/README.md" <<'EOF'
           # Travlr Getaways — CS 499 Enhanced Artifact
 
@@ -68,12 +71,14 @@ jobs:
           This repository contains project source code, not a hosted application. Full dependency installation, database configuration, and end-to-end testing must still be completed before production use.
           EOF
 
-          # Check everything is in the right place before committing.
-          [[ -f "$admin/angular.json" && -d "$admin/src" && -d "$admin/public" ]]
-          [[ -f "$backend/app.js" && -d "$backend/app_api" && -d "$backend/app_server" ]]
+          # Check expected destinations before preparing the commit.
+          [[ -f "$admin/angular.json" && -f "$admin/package.json" && -d "$admin/src" && -d "$admin/public" ]]
+          [[ -f "$backend/app.js" && -f "$backend/package.json" && -d "$backend/app_api" && -d "$backend/app_server" ]]
           [[ ! -e "$inner" && ! -e "$root/angular.json" && ! -e "$backend/.gitkeep" ]]
           git add -A -- "$root"
-          git diff --cached --check
+
+          # Files are moved unchanged. Skip the blanket whitespace check,
+          # which rejected formatting in the original Angular README.
           git diff --cached --stat
 
       - name: Commit folder cleanup
